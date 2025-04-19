@@ -164,8 +164,8 @@ body {
 
 /* Estilos para a visualização de objetos */
 .object-cell {
-    max-width: 200px;
-    overflow: hidden;
+    max-width: 300px;
+    overflow: visible;
 }
 
 .object-list {
@@ -173,17 +173,22 @@ body {
     margin: 0;
     list-style: none;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column; /* Alterado de row (padrão) para column */
     gap: 5px;
+    width: 100%;
 }
 
 .object-tag {
     background-color: var(--accent-color);
     color: white;
-    padding: 2px 8px;
-    border-radius: 12px;
+    padding: 4px 10px; /* Aumentado ligeiramente para melhor visualização */
+    border-radius: 8px;
     font-size: 12px;
-    white-space: nowrap;
+    white-space: normal;
+    word-break: break-word;
+    display: block; /* Alterado de inline-block para block */
+    margin-bottom: 5px;
+    width: 100%; /* Add spacing between wrapped lines */
 }
 
 /* Estilos para edição de células */
@@ -260,14 +265,16 @@ body {
 
 .item-input-group {
     display: flex;
-    margin-bottom: 8px;
-    align-items: center;
+    margin-bottom: 10px; /* Aumentar espaçamento entre itens */
+    align-items: flex-start;
+    width: 100%;
 }
 
 .item-input-group input {
     flex-grow: 1;
     margin-right: 5px;
     border-radius: 4px;
+    min-width: 200px; /* Ensures a minimum width for the input */
 }
 
 .item-input-group .btn-danger {
@@ -341,7 +348,9 @@ body {
     }
     
     .object-cell {
-        max-width: 150px;
+       max-width: 300px;
+    overflow: visible;
+    padding: 5px 0;
     }
 }
 
@@ -360,8 +369,8 @@ body {
 /* Melhorias para a visualização em dispositivos móveis */
 @media (max-width: 576px) {
     .edit-form {
-        width: 95% !important;
-        max-height: 85vh !important;
+        width: 500px; /* Increased from 400px */
+        max-width: 95vw;
     }
     
     .summary-card {
