@@ -1,3 +1,43 @@
+// Log de inicialização
+console.log('Inicializando dashboard orçamentário SUAD...');
+
+// Sobrescrever console.error para mostrar alertas em caso de erros críticos
+const originalConsoleError = console.error;
+console.error = function() {
+    // Chamar a função original
+    originalConsoleError.apply(console, arguments);
+    
+    // Converter argumentos para string para verificação
+    const errorStr = Array.from(arguments).join(' ');
+    
+    // Detectar erros críticos específicos
+    if (
+        errorStr.includes('Firebase') ||
+        errorStr.includes('firestore') ||
+        errorStr.includes('auth') ||
+        errorStr.includes('permission')
+    ) {
+        // Mostrar mensagem de erro na interface para o usuário
+        const errorElement = document.createElement('div');
+        errorElement.className = 'alert alert-danger alert-dismissible fade show';
+        errorElement.setAttribute('role', 'alert');
+        errorElement.innerHTML = `
+            <strong>Erro:</strong> ${errorStr}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        // Inserir no início do documento se possível
+        if (document.body) {
+            const container = document.querySelector('.container-fluid');
+            if (container) {
+                container.insertBefore(errorElement, container.firstChild);
+            } else {
+                document.body.insertBefore(errorElement, document.body.firstChild);
+            }
+        }
+    }
+};
+
 // Dados da planilha - será substituído pelos dados do Firebase
 let dadosResumo = [];
 
@@ -30,7 +70,13 @@ function formatarNumero(valor) {
 
 // Função para atualizar a tabela de dados
 function atualizarTabela() {
+    console.log('Atualizando tabela de dados...');
     const tbody = document.getElementById('tabelaDados');
+    if (!tbody) {
+        console.error('Elemento tabelaDados não encontrado!');
+        return;
+    }
+    
     tbody.innerHTML = '';
     
     // Filtrar dados conforme os filtros atuais
@@ -49,7 +95,11 @@ function atualizarTabela() {
     
     // Atualizar cabeçalho da coluna de objetos
     const colObjetos = document.getElementById('colObjetos');
-    colObjetos.textContent = visualizacaoAtual === 'quantidade' ? 'Objetos Adquiridos' : 'Lista de Objetos';
+    if (colObjetos) {
+        colObjetos.textContent = visualizacaoAtual === 'quantidade' ? 'Objetos Adquiridos' : 'Lista de Objetos';
+    }
+    
+    console.log(`Exibindo ${dadosFiltrados.length} registros na tabela`);
     
     // Criar linhas da tabela
     dadosFiltrados.forEach(d => {
@@ -152,10 +202,14 @@ function atualizarTabela() {
         `;
         tbody.appendChild(trTotal);
     }
+    
+    console.log('Tabela atualizada com sucesso');
 }
 
 // Função para atualizar os cards de resumo
 function atualizarResumos() {
+    console.log('Atualizando cards de resumo...');
+    
     // Filtrar dados conforme os filtros atuais
     let dadosFiltrados = dadosResumo.filter(d => {
         return (filtrosAtuais.ano === 'todos' || d.ano.toString() === filtrosAtuais.ano) &&
@@ -181,20 +235,33 @@ function atualizarResumos() {
     });
     
     // Atualizar cards
-    document.getElementById('totalEmpenhado').textContent = formatarMoeda(totais.empenhado);
-    document.getElementById('totalLiquidado').textContent = formatarMoeda(totais.liquidado);
+    const totalEmpenhadoEl = document.getElementById('totalEmpenhado');
+    const totalLiquidadoEl = document.getElementById('totalLiquidado');
+    const totalObjetosEl = document.getElementById('totalObjetos');
+    const totalContasPrestadasEl = document.getElementById('totalContasPrestadas');
     
-    if (visualizacaoAtual === 'quantidade') {
-        document.getElementById('totalObjetos').textContent = formatarNumero(totais.objetos);
-    } else {
-        document.getElementById('totalObjetos').textContent = formatarNumero(todosItens.size);
+    if (totalEmpenhadoEl) totalEmpenhadoEl.textContent = formatarMoeda(totais.empenhado);
+    if (totalLiquidadoEl) totalLiquidadoEl.textContent = formatarMoeda(totais.liquidado);
+    
+    if (totalObjetosEl) {
+        if (visualizacaoAtual === 'quantidade') {
+            totalObjetosEl.textContent = formatarNumero(totais.objetos);
+        } else {
+            totalObjetosEl.textContent = formatarNumero(todosItens.size);
+        }
     }
     
-    document.getElementById('totalContasPrestadas').textContent = formatarNumero(totais.prestadas);
+    if (totalContasPrestadasEl) {
+        totalContasPrestadasEl.textContent = formatarNumero(totais.prestadas);
+    }
+    
+    console.log('Cards de resumo atualizados com sucesso');
 }
 
 // Função para preparar dados para gráficos
 function prepararDadosGraficos() {
+    console.log('Preparando dados para gráficos...');
+    
     // Filtrar dados conforme os filtros atuais
     let dadosFiltrados = dadosResumo.filter(d => {
         return (filtrosAtuais.ano === 'todos' || d.ano.toString() === filtrosAtuais.ano) &&
@@ -300,8 +367,8 @@ function prepararDadosGraficos() {
             return itensUnicos.size;
         });
         
-        // Para contas prestadas, usamos a mesma lógica de tipos únicos
-        prestadasData = objetosData; // Normalmente seria a mesma contagem para este exemplo
+        // Para contas prestadas, usamos a mesma lógica
+        prestadasData = anos.map(ano => dadosFiltrados.filter(d => d.ano === ano).reduce((sum, d) => sum + d.prestadas, 0));
     }
     
     const dadosObjetos = {
@@ -324,11 +391,21 @@ function prepararDadosGraficos() {
         ]
     };
     
+    console.log('Dados dos gráficos preparados com sucesso');
+    
     return { dadosEixo, dadosAno, dadosComparativo, dadosObjetos };
 }
 
 // Função para criar/atualizar gráficos
 function atualizarGraficos() {
+    console.log('Atualizando gráficos...');
+    
+    // Verificar se Chart.js está disponível
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js não está disponível. Os gráficos não serão atualizados.');
+        return;
+    }
+    
     const { dadosEixo, dadosAno, dadosComparativo, dadosObjetos } = prepararDadosGraficos();
     
     // Configurações comuns
@@ -374,59 +451,109 @@ function atualizarGraficos() {
         }
     };
     
-    // Destruir gráficos existentes
-    Object.values(charts).forEach(chart => {
-        if (chart) chart.destroy();
-    });
-    
-    // Criar novos gráficos
-    charts.eixo = new Chart(document.getElementById('eixoChart'), {
-        type: 'pie',
-        data: dadosEixo,
-        options: opcoes
-    });
-    
-    charts.ano = new Chart(document.getElementById('anoChart'), {
-        type: 'bar',
-        data: dadosAno,
-        options: opcoes
-    });
-    
-    charts.comparativo = new Chart(document.getElementById('comparativoChart'), {
-        type: 'bar',
-        data: dadosComparativo,
-        options: opcoes
-    });
-    
-    charts.objetos = new Chart(document.getElementById('objetosChart'), {
-        type: 'bar',
-        data: dadosObjetos,
-        options: opcoesObjetos
-    });
+    try {
+        // Destruir gráficos existentes
+        Object.values(charts).forEach(chart => {
+            if (chart) chart.destroy();
+        });
+        
+        // Criar novos gráficos
+        const eixoChartEl = document.getElementById('eixoChart');
+        const anoChartEl = document.getElementById('anoChart');
+        const comparativoChartEl = document.getElementById('comparativoChart');
+        const objetosChartEl = document.getElementById('objetosChart');
+        
+        if (eixoChartEl) {
+            charts.eixo = new Chart(eixoChartEl, {
+                type: 'pie',
+                data: dadosEixo,
+                options: opcoes
+            });
+        } else {
+            console.warn('Elemento eixoChart não encontrado');
+        }
+        
+        if (anoChartEl) {
+            charts.ano = new Chart(anoChartEl, {
+                type: 'bar',
+                data: dadosAno,
+                options: opcoes
+            });
+        } else {
+            console.warn('Elemento anoChart não encontrado');
+        }
+        
+        if (comparativoChartEl) {
+            charts.comparativo = new Chart(comparativoChartEl, {
+                type: 'bar',
+                data: dadosComparativo,
+                options: opcoes
+            });
+        } else {
+            console.warn('Elemento comparativoChart não encontrado');
+        }
+        
+        if (objetosChartEl) {
+            charts.objetos = new Chart(objetosChartEl, {
+                type: 'bar',
+                data: dadosObjetos,
+                options: opcoesObjetos
+            });
+        } else {
+            console.warn('Elemento objetosChart não encontrado');
+        }
+        
+        console.log('Gráficos atualizados com sucesso');
+    } catch (error) {
+        console.error('Erro ao criar gráficos:', error);
+    }
 }
 
 // Atualizar toda a visualização
 function atualizarVisualizacao() {
-    atualizarTabela();
-    atualizarResumos();
-    atualizarGraficos();
+    console.log('Atualizando toda a visualização...');
+    try {
+        atualizarTabela();
+        atualizarResumos();
+        atualizarGraficos();
+        console.log('Visualização atualizada com sucesso');
+    } catch (error) {
+        console.error('Erro ao atualizar visualização:', error);
+    }
 }
 
 // Função para carregar dados do Firebase
 async function carregarDadosDoFirebase() {
-    const resultado = await window.firebaseApp.carregarDados();
-    
-    if (resultado.sucesso) {
-        dadosResumo = resultado.dados;
-        atualizarVisualizacao();
-    } else {
-        alert(resultado.mensagem);
+    console.log('Carregando dados do Firebase...');
+    try {
+        // Verificar se o objeto firebaseApp está disponível
+        if (!window.firebaseApp) {
+            throw new Error('O objeto firebaseApp não está disponível. Verifique a inicialização do Firebase.');
+        }
+        
+        const resultado = await window.firebaseApp.carregarDados();
+        
+        if (resultado.sucesso) {
+            console.log(`Dados carregados com sucesso: ${resultado.dados.length} registros`);
+            dadosResumo = resultado.dados;
+            atualizarVisualizacao();
+        } else {
+            console.error('Erro ao carregar dados:', resultado.mensagem);
+            alert(resultado.mensagem);
+        }
+    } catch (error) {
+        console.error('Erro crítico ao carregar dados:', error);
+        alert(`Erro ao carregar dados: ${error.message}`);
     }
 }
 
 // Função para mostrar o formulário de edição
 function mostrarFormularioEdicao(cell) {
+    console.log('Mostrando formulário de edição...');
+    
+    // Verificar autenticação
     if (!window.firebaseApp.isAutenticado()) {
+        console.warn('Usuário não autenticado para edição');
         alert('Você precisa estar logado para editar dados.');
         loginModal.show();
         return;
@@ -436,6 +563,8 @@ function mostrarFormularioEdicao(cell) {
     const docId = row.getAttribute('data-id');
     const field = cell.getAttribute('data-field');
     const currentValue = parseFloat(cell.getAttribute('data-value'));
+    
+    console.log(`Editando campo ${field} do documento ${docId} com valor atual ${currentValue}`);
     
     // Criar overlay
     const overlay = document.createElement('div');
@@ -544,16 +673,20 @@ function mostrarFormularioEdicao(cell) {
     overlay.addEventListener('click', function() {
         fecharFormularioEdicao(overlay, form);
     });
+    
+    console.log('Formulário de edição criado com sucesso');
 }
 
 // Função para fechar o formulário de edição
 function fecharFormularioEdicao(overlay, form) {
+    console.log('Fechando formulário de edição');
     document.body.removeChild(overlay);
     document.body.removeChild(form);
 }
 
 // Função para salvar as edições no Firebase
 async function salvarEdicao(docId, field, overlay, form) {
+    console.log(`Salvando edição do campo ${field} do documento ${docId}`);
     try {
         const novoValor = document.getElementById('valor-edit').value;
         
@@ -563,18 +696,24 @@ async function salvarEdicao(docId, field, overlay, form) {
             const itemInputs = document.querySelectorAll('.item-input');
             const itens = Array.from(itemInputs).map(input => input.value).filter(val => val.trim() !== '');
             
+            console.log(`Atualizando campo ${field} com valor ${novoValor} e ${itens.length} itens`);
+            
             // Atualizar documento com novo valor e lista de itens
             const resultado = await window.firebaseApp.atualizarDado(docId, field, novoValor, itens);
             
             if (!resultado.sucesso) {
+                console.error('Erro ao atualizar dados:', resultado.mensagem);
                 alert(resultado.mensagem);
                 return;
             }
         } else {
+            console.log(`Atualizando campo ${field} com valor ${novoValor}`);
+            
             // Atualizar apenas o campo específico
             const resultado = await window.firebaseApp.atualizarDado(docId, field, novoValor);
             
             if (!resultado.sucesso) {
+                console.error('Erro ao atualizar dados:', resultado.mensagem);
                 alert(resultado.mensagem);
                 return;
             }
@@ -585,6 +724,8 @@ async function salvarEdicao(docId, field, overlay, form) {
         
         // Fechar formulário
         fecharFormularioEdicao(overlay, form);
+        
+        console.log('Edição salva com sucesso');
     } catch (error) {
         console.error('Erro ao salvar edição:', error);
         alert('Ocorreu um erro ao salvar. Por favor, tente novamente.');
@@ -593,7 +734,11 @@ async function salvarEdicao(docId, field, overlay, form) {
 
 // Função para mostrar formulário de novo registro
 function mostrarFormularioNovoRegistro() {
+    console.log('Mostrando formulário de novo registro');
+    
+    // Verificar autenticação
     if (!window.firebaseApp.isAutenticado()) {
+        console.warn('Usuário não autenticado para criar novo registro');
         alert('Você precisa estar logado para criar novos registros.');
         loginModal.show();
         return;
@@ -714,10 +859,13 @@ function mostrarFormularioNovoRegistro() {
     overlay.addEventListener('click', function() {
         fecharFormularioEdicao(overlay, form);
     });
+    
+    console.log('Formulário de novo registro criado com sucesso');
 }
 
 // Função para salvar novo registro no Firebase
 async function salvarNovoRegistro(overlay, form) {
+    console.log('Salvando novo registro...');
     try {
         // Obter valores do formulário
         const ano = parseInt(document.getElementById('novo-ano').value);
@@ -732,6 +880,8 @@ async function salvarNovoRegistro(overlay, form) {
         const itemInputs = document.querySelectorAll('.novo-item-input');
         const itens = Array.from(itemInputs).map(input => input.value).filter(val => val.trim() !== '');
         
+        console.log(`Criando registro: Ano=${ano}, Eixo=${eixo}, Natureza=${natureza}, Empenhado=${empenhado}, Liquidado=${liquidado}, Objetos=${objetos}, Prestadas=${prestadas}, Itens=${itens.length}`);
+        
         // Criar novo registro no Firebase
         const resultado = await window.firebaseApp.criarRegistro({
             ano,
@@ -745,6 +895,7 @@ async function salvarNovoRegistro(overlay, form) {
         });
         
         if (!resultado.sucesso) {
+            console.error('Erro ao criar registro:', resultado.mensagem);
             alert(resultado.mensagem);
             return;
         }
@@ -756,6 +907,7 @@ async function salvarNovoRegistro(overlay, form) {
         fecharFormularioEdicao(overlay, form);
         
         alert('Registro criado com sucesso!');
+        console.log('Novo registro salvo com sucesso');
     } catch (error) {
         console.error('Erro ao criar registro:', error);
         alert('Ocorreu um erro ao criar o registro. Por favor, tente novamente.');
@@ -764,10 +916,12 @@ async function salvarNovoRegistro(overlay, form) {
 
 // Função para excluir registro
 async function excluirRegistro(docId) {
+    console.log(`Excluindo registro ${docId}...`);
     try {
         const resultado = await window.firebaseApp.excluirRegistro(docId);
         
         if (!resultado.sucesso) {
+            console.error('Erro ao excluir registro:', resultado.mensagem);
             alert(resultado.mensagem);
             return;
         }
@@ -776,6 +930,7 @@ async function excluirRegistro(docId) {
         await carregarDadosDoFirebase();
         
         alert('Registro excluído com sucesso!');
+        console.log('Registro excluído com sucesso');
     } catch (error) {
         console.error('Erro ao excluir registro:', error);
         alert('Ocorreu um erro ao excluir o registro. Por favor, tente novamente.');
@@ -784,6 +939,7 @@ async function excluirRegistro(docId) {
 
 // Função para migrar dados originais para o Firebase
 async function migrarDadosOriginais() {
+    console.log('Iniciando migração de dados originais...');
     try {
         // Dados originais da aplicação
         const dadosOriginais = [
@@ -836,12 +992,15 @@ async function migrarDadosOriginais() {
             {ano: 2024, eixo: "ECV-FISPDS-RMVI", natureza: "Investimento", empenhado: 380000, liquidado: 380000, objetos: 2, prestadas: 2, itens: ["Sistema de Detecção Acústica"]}
         ];
         
+        console.log(`Migrando ${dadosOriginais.length} registros para o Firebase...`);
         const resultado = await window.firebaseApp.migrarDadosIniciais(dadosOriginais);
         
         if (resultado.sucesso) {
             alert('Dados migrados com sucesso!');
             await carregarDadosDoFirebase();
+            console.log('Migração concluída com sucesso');
         } else {
+            console.error('Erro na migração de dados:', resultado.mensagem);
             alert(resultado.mensagem);
         }
         
@@ -853,69 +1012,152 @@ async function migrarDadosOriginais() {
 
 // Inicializar aplicação
 document.addEventListener('DOMContentLoaded', async () => {
-    // Inicializar modal de login
-    loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+    console.log('DOM carregado, iniciando aplicação...');
     
-    // Verificar autenticação
-    const autenticado = await window.firebaseApp.verificarAutenticacao();
-    
-    if (!autenticado) {
-        // Mostrar modal de login se não estiver autenticado
-        loginModal.show();
-    } else {
-        // Carregar dados do Firebase
-        await carregarDadosDoFirebase();
-    }
-    
-    // Event listeners para filtros
-    document.getElementById('btnQuantidade').addEventListener('change', () => {
-        visualizacaoAtual = 'quantidade';
-        atualizarVisualizacao();
-    });
-    
-    document.getElementById('btnObjetos').addEventListener('change', () => {
-        visualizacaoAtual = 'objetos';
-        atualizarVisualizacao();
-    });
-    
-    // Botão de aplicar filtros
-    document.getElementById('btnAplicarFiltro').addEventListener('click', () => {
-        filtrosAtuais.ano = document.getElementById('filtroAno').value;
-        filtrosAtuais.eixo = document.getElementById('filtroEixo').value;
-        filtrosAtuais.natureza = document.getElementById('filtroNatureza').value;
-        atualizarVisualizacao();
-    });
-    
-    // Botão de novo registro
-    document.getElementById('btnNovoRegistro').addEventListener('click', () => {
-        mostrarFormularioNovoRegistro();
-    });
-    
-    // Botão de migrar dados
-    document.getElementById('btnMigrarDados').addEventListener('click', () => {
-        if (confirm('Esta operação vai migrar os dados originais para o Firebase. Deseja continuar?')) {
-            migrarDadosOriginais();
+    try {
+        // Verificar se o Firebase foi carregado corretamente
+        if (typeof firebase === 'undefined') {
+            throw new Error('Firebase não foi carregado. Verifique as referências aos scripts do Firebase.');
         }
-    });
-    
-    // Botão de login
-    document.getElementById('loginBtn').addEventListener('click', async () => {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
         
-        const resultado = await window.firebaseApp.fazerLogin(email, password);
+        // Verificar se Chart.js foi carregado
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js não foi carregado. Os gráficos não serão exibidos.');
+        }
         
-        if (resultado.sucesso) {
-            loginModal.hide();
-            await carregarDadosDoFirebase();
+        // Verificar se Bootstrap foi carregado
+        if (typeof bootstrap === 'undefined' || typeof bootstrap.Modal === 'undefined') {
+            console.warn('Bootstrap não foi carregado completamente. A interface pode não funcionar corretamente.');
+        }
+        
+        // Inicializar modal de login
+        try {
+            loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            console.log('Modal de login inicializado');
+        } catch (error) {
+            console.error('Erro ao inicializar modal de login:', error);
+        }
+        
+        // Verificar autenticação
+        console.log('Verificando autenticação...');
+        const autenticado = await window.firebaseApp.verificarAutenticacao();
+        console.log('Estado de autenticação:', autenticado ? 'Autenticado' : 'Não autenticado');
+        
+        if (!autenticado) {
+            // Mostrar modal de login se não estiver autenticado
+            console.log('Usuário não autenticado, exibindo modal de login');
+            loginModal.show();
         } else {
-            document.getElementById('loginError').textContent = resultado.mensagem;
+            // Carregar dados do Firebase
+            console.log('Usuário autenticado, carregando dados...');
+            await carregarDadosDoFirebase();
         }
-    });
-    
-    // Botão de logout
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-        await window.firebaseApp.fazerLogout();
-        location.reload();
-    });
+        
+        // Event listeners para filtros
+        const btnQuantidade = document.getElementById('btnQuantidade');
+        const btnObjetos = document.getElementById('btnObjetos');
+        
+        if (btnQuantidade) {
+            btnQuantidade.addEventListener('change', () => {
+                visualizacaoAtual = 'quantidade';
+                atualizarVisualizacao();
+            });
+        }
+        
+        if (btnObjetos) {
+            btnObjetos.addEventListener('change', () => {
+                visualizacaoAtual = 'objetos';
+                atualizarVisualizacao();
+            });
+        }
+        
+        // Botão de aplicar filtros
+        const btnAplicarFiltro = document.getElementById('btnAplicarFiltro');
+        if (btnAplicarFiltro) {
+            btnAplicarFiltro.addEventListener('click', () => {
+                const filtroAno = document.getElementById('filtroAno');
+                const filtroEixo = document.getElementById('filtroEixo');
+                const filtroNatureza = document.getElementById('filtroNatureza');
+                
+                filtrosAtuais.ano = filtroAno ? filtroAno.value : 'todos';
+                filtrosAtuais.eixo = filtroEixo ? filtroEixo.value : 'todos';
+                filtrosAtuais.natureza = filtroNatureza ? filtroNatureza.value : 'todos';
+                
+                atualizarVisualizacao();
+            });
+        }
+        
+        // Botão de novo registro
+        const btnNovoRegistro = document.getElementById('btnNovoRegistro');
+        if (btnNovoRegistro) {
+            btnNovoRegistro.addEventListener('click', () => {
+                mostrarFormularioNovoRegistro();
+            });
+        }
+        
+        // Botão de migrar dados
+        const btnMigrarDados = document.getElementById('btnMigrarDados');
+        if (btnMigrarDados) {
+            btnMigrarDados.addEventListener('click', () => {
+                if (confirm('Esta operação vai migrar os dados originais para o Firebase. Deseja continuar?')) {
+                    migrarDadosOriginais();
+                }
+            });
+        }
+        
+        // Botão de login
+        const loginBtn = document.getElementById('loginBtn');
+        if (loginBtn) {
+            loginBtn.addEventListener('click', async () => {
+                const emailEl = document.getElementById('email');
+                const passwordEl = document.getElementById('password');
+                const loginErrorEl = document.getElementById('loginError');
+                
+                if (!emailEl || !passwordEl) {
+                    console.error('Elementos de formulário de login não encontrados');
+                    return;
+                }
+                
+                const email = emailEl.value;
+                const password = passwordEl.value;
+                
+                console.log(`Tentando login com email: ${email}`);
+                const resultado = await window.firebaseApp.fazerLogin(email, password);
+                
+                if (resultado.sucesso) {
+                    console.log('Login realizado com sucesso');
+                    loginModal.hide();
+                    await carregarDadosDoFirebase();
+                } else {
+                    console.error('Erro no login:', resultado.mensagem);
+                    if (loginErrorEl) {
+                        loginErrorEl.textContent = resultado.mensagem;
+                    }
+                }
+            });
+        }
+        
+        // Botão de logout
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', async () => {
+                console.log('Realizando logout...');
+                await window.firebaseApp.fazerLogout();
+                location.reload();
+            });
+        }
+        
+        console.log('Inicialização completa');
+    } catch (error) {
+        console.error('Erro crítico na inicialização da aplicação:', error);
+        document.body.innerHTML = `
+            <div class="container text-center mt-5">
+                <div class="alert alert-danger p-5">
+                    <h2>Erro na inicialização</h2>
+                    <p>${error.message}</p>
+                    <button class="btn btn-primary mt-3" onclick="location.reload()">Tentar Novamente</button>
+                </div>
+            </div>
+        `;
+    }
 });
