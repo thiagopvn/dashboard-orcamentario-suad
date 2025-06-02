@@ -67,7 +67,7 @@
 
 .toggle-slider {
     position: absolute;
-    width: 50%;
+    width: 150px; /* Metade de 300px */
     height: 40px;
     background: #3b82f6;
     border-radius: 20px;
@@ -78,7 +78,7 @@
 }
 
 .toggle-slider.right {
-    transform: translateX(96px);
+    transform: translateX(146px); /* 300px - 150px - 4px (margens) */
 }
 
 .toggle-option {
