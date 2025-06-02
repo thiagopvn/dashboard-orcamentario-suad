@@ -54,3 +54,229 @@
 .form-radio {
     color: #2563eb;
 }
+
+.toggle-switch {
+    position: relative;
+    width: 200px;
+    height: 44px;
+    background: #e5e7eb;
+    border-radius: 22px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.toggle-slider {
+    position: absolute;
+    width: 50%;
+    height: 40px;
+    background: #3b82f6;
+    border-radius: 20px;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.5);
+}
+
+.toggle-slider.right {
+    transform: translateX(96px);
+}
+
+.toggle-option {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    transition: color 0.3s;
+    z-index: 10;
+    user-select: none;
+}
+
+.toggle-option.left {
+    left: 0;
+    color: white;
+}
+
+.toggle-option.right {
+    right: 0;
+    color: #6b7280;
+}
+
+.toggle-option.active {
+    color: white;
+}
+
+.toggle-option.inactive {
+    color: #6b7280;
+}
+
+.fund-chip {
+    padding: 8px 20px;
+    border-radius: 9999px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    position: relative;
+    overflow: hidden;
+}
+
+.fund-chip::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.fund-chip:hover::before {
+    opacity: 0.1;
+}
+
+.fund-chip.fusp {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #3b82f6;
+}
+
+.fund-chip.fusp.active {
+    background: #3b82f6;
+    color: white;
+}
+
+.fund-chip.fecam {
+    background: #d1fae5;
+    color: #065f46;
+    border-color: #10b981;
+}
+
+.fund-chip.fecam.active {
+    background: #10b981;
+    color: white;
+}
+
+.fund-chip.emendas-estaduais {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #f59e0b;
+}
+
+.fund-chip.emendas-estaduais.active {
+    background: #f59e0b;
+    color: white;
+}
+
+.fund-chip.emendas-federais {
+    background: #ede9fe;
+    color: #5b21b6;
+    border-color: #8b5cf6;
+}
+
+.fund-chip.emendas-federais.active {
+    background: #8b5cf6;
+    color: white;
+}
+
+.fund-chip i {
+    font-size: 12px;
+    transition: transform 0.2s;
+}
+
+.fund-chip.active i {
+    transform: scale(1.2);
+}
+
+.custom-select {
+    position: relative;
+    width: 100%;
+}
+
+.custom-select-trigger {
+    padding: 10px 40px 10px 16px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.custom-select-trigger:hover {
+    border-color: #3b82f6;
+}
+
+.custom-select-trigger::after {
+    content: '\f107';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    right: 16px;
+    transition: transform 0.2s;
+}
+
+.custom-select.open .custom-select-trigger::after {
+    transform: rotate(180deg);
+}
+
+.custom-select-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    margin-top: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    transition: all 0.2s;
+    z-index: 100;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.custom-select.open .custom-select-options {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+.custom-select-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.custom-select-option:hover {
+    background: #f3f4f6;
+    color: #3b82f6;
+}
+
+.custom-select-option.selected {
+    background: #dbeafe;
+    color: #3b82f6;
+}
+
+.filter-section {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}

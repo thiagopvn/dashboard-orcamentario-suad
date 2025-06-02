@@ -877,31 +877,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('logoutBtn').classList.remove('hidden');
     }
     
-    document.getElementById('btnQuantidade').addEventListener('change', () => {
-    setVisualizacaoAtual('quantidade');
-    atualizarVisualizacao();
+    const toggleSwitch = document.getElementById('visualizationToggle');
+    const slider = document.getElementById('toggleSlider');
+    const leftOption = toggleSwitch.querySelector('.left');
+    const rightOption = toggleSwitch.querySelector('.right');
     
-    if (abaAtual !== 'geral') {
-        atualizarAbaFundo(abaAtual);
-    }
-});
-
-document.getElementById('btnObjetos').addEventListener('change', () => {
-    setVisualizacaoAtual('objetos');
-    atualizarVisualizacao();
-    
-    if (abaAtual !== 'geral') {
-        atualizarAbaFundo(abaAtual);
-    }
-});
-    
-    document.getElementById('btnAplicarFiltro').addEventListener('click', () => {
-        const filtros = getFiltrosAtuais();
-        filtros.ano = document.getElementById('filtroAno').value;
-        filtros.eixo = document.getElementById('filtroEixo').value;
-        filtros.natureza = document.getElementById('filtroNatureza').value;
-        setFiltrosAtuais(filtros);
-        atualizarFundosSelecionados();
+    toggleSwitch.addEventListener('click', function() {
+        slider.classList.toggle('right');
+        leftOption.classList.toggle('active');
+        leftOption.classList.toggle('inactive');
+        rightOption.classList.toggle('active');
+        rightOption.classList.toggle('inactive');
+        
+        const novaVisualizacao = slider.classList.contains('right') ? 'objetos' : 'quantidade';
+        setVisualizacaoAtual(novaVisualizacao);
         atualizarVisualizacao();
         
         if (abaAtual !== 'geral') {
@@ -909,15 +898,82 @@ document.getElementById('btnObjetos').addEventListener('change', () => {
         }
     });
     
-    document.querySelectorAll('[id^="filtro"][type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', () => {
-            atualizarFundosSelecionados();
+    document.querySelectorAll('.fund-chip').forEach(chip => {
+        chip.addEventListener('click', function() {
+            this.classList.toggle('active');
+            const icon = this.querySelector('i');
+            if (this.classList.contains('active')) {
+                icon.className = 'fas fa-check-circle';
+            } else {
+                icon.className = 'fas fa-times-circle';
+            }
+            
+            const fundosSelecionados = [];
+            document.querySelectorAll('.fund-chip.active').forEach(activeChip => {
+                fundosSelecionados.push(activeChip.dataset.fund);
+            });
+            
+            updateFiltrosAtuais('fundos', fundosSelecionados);
             atualizarVisualizacao();
             
             if (abaAtual !== 'geral') {
                 atualizarAbaFundo(abaAtual);
             }
         });
+    });
+    
+    document.querySelectorAll('.custom-select').forEach(select => {
+        const trigger = select.querySelector('.custom-select-trigger');
+        const options = select.querySelectorAll('.custom-select-option');
+        
+        trigger.addEventListener('click', function() {
+            select.classList.toggle('open');
+            
+            document.querySelectorAll('.custom-select').forEach(otherSelect => {
+                if (otherSelect !== select) {
+                    otherSelect.classList.remove('open');
+                }
+            });
+        });
+        
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                const value = this.dataset.value;
+                const text = this.textContent;
+                
+                trigger.querySelector('span').textContent = text;
+                
+                options.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                select.classList.remove('open');
+                
+                const filtros = getFiltrosAtuais();
+                
+                if (select.id === 'anoSelect') {
+                    filtros.ano = value;
+                } else if (select.id === 'eixoSelect') {
+                    filtros.eixo = value;
+                } else if (select.id === 'naturezaSelect') {
+                    filtros.natureza = value;
+                }
+                
+                setFiltrosAtuais(filtros);
+                atualizarVisualizacao();
+                
+                if (abaAtual !== 'geral') {
+                    atualizarAbaFundo(abaAtual);
+                }
+            });
+        });
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.custom-select')) {
+            document.querySelectorAll('.custom-select').forEach(select => {
+                select.classList.remove('open');
+            });
+        }
     });
     
     document.getElementById('btnNovoRegistro').addEventListener('click', () => {

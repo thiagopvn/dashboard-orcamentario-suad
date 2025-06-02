@@ -36,72 +36,110 @@
 
     <div class="container mx-auto px-4 pt-20">
         <div class="mb-6">
-            <div class="bg-white rounded-lg shadow-md p-4">
-                <div class="flex flex-wrap items-center gap-4">
-                    <div class="flex items-center space-x-2">
-                        <span class="font-medium">Visualização:</span>
-                        <label class="inline-flex items-center">
-                            <input type="radio" name="visualizacao" id="btnQuantidade" value="quantidade" checked class="form-radio text-blue-600">
-                            <span class="ml-2">Quantidade</span>
-                        </label>
-                        <label class="inline-flex items-center ml-4">
-                            <input type="radio" name="visualizacao" id="btnObjetos" value="objetos" class="form-radio text-blue-600">
-                            <span class="ml-2">Objetos</span>
-                        </label>
+    <div class="filter-section">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="space-y-3">
+                <label class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <i class="fas fa-eye text-blue-600"></i>
+                    Modo de Visualização
+                </label>
+                <div class="toggle-switch" id="visualizationToggle">
+                    <div class="toggle-slider" id="toggleSlider"></div>
+                    <div class="toggle-option left active" data-value="quantidade">
+                        <i class="fas fa-hashtag mr-2"></i>Quantidade
                     </div>
-                    
-                    <div class="flex items-center space-x-2">
-                        <span class="font-medium">Fundos:</span>
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" id="filtroFUSP" value="FUSP" checked class="form-checkbox text-blue-600">
-                            <span class="ml-2">FUSP</span>
-                        </label>
-                        <label class="inline-flex items-center ml-2">
-                            <input type="checkbox" id="filtroFECAM" value="FECAM" checked class="form-checkbox text-blue-600">
-                            <span class="ml-2">FECAM</span>
-                        </label>
-                        <label class="inline-flex items-center ml-2">
-                            <input type="checkbox" id="filtroEmendasEstaduais" value="Emendas Estaduais" checked class="form-checkbox text-blue-600">
-                            <span class="ml-2">Emendas Estaduais</span>
-                        </label>
-                        <label class="inline-flex items-center ml-2">
-                            <input type="checkbox" id="filtroEmendasFederais" value="Emendas Federais" checked class="form-checkbox text-blue-600">
-                            <span class="ml-2">Emendas Federais</span>
-                        </label>
+                    <div class="toggle-option right inactive" data-value="objetos">
+                        <i class="fas fa-boxes mr-2"></i>Objetos
                     </div>
-                    
-                    <div class="flex items-center space-x-2">
-                        <select id="filtroAno" class="border rounded px-3 py-1">
-                            <option value="todos">Todos os Anos</option>
-                            <option value="2019">2019</option>
-                            <option value="2020">2020</option>
-                            <option value="2021">2021</option>
-                            <option value="2022">2022</option>
-                            <option value="2023">2023</option>
-                            <option value="2024">2024</option>
-                            <option value="2025">2025</option>
-                        </select>
-                        
-                        <select id="filtroEixo" class="border rounded px-3 py-1">
-                            <option value="todos">Todos os Eixos</option>
-                            <option value="EVM">EVM</option>
-                            <option value="VPSP-MQVPSP">VPSP-MQVPSP</option>
-                            <option value="ECV-FISPDS-RMVI">ECV-FISPDS-RMVI</option>
-                        </select>
-                        
-                        <select id="filtroNatureza" class="border rounded px-3 py-1">
-                            <option value="todos">Todas as Naturezas</option>
-                            <option value="Custeio">Custeio</option>
-                            <option value="Investimento">Investimento</option>
-                        </select>
-                        
-                        <button id="btnAplicarFiltro" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded">
-                            <i class="fas fa-filter"></i> Filtrar
-                        </button>
+                </div>
+            </div>
+            
+            <div class="lg:col-span-2 space-y-3">
+                <label class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <i class="fas fa-filter text-blue-600"></i>
+                    Fundos
+                </label>
+                <div class="flex flex-wrap gap-3">
+                    <div class="fund-chip fusp active" data-fund="FUSP">
+                        <i class="fas fa-check-circle"></i>
+                        FUSP
+                    </div>
+                    <div class="fund-chip fecam active" data-fund="FECAM">
+                        <i class="fas fa-check-circle"></i>
+                        FECAM
+                    </div>
+                    <div class="fund-chip emendas-estaduais active" data-fund="Emendas Estaduais">
+                        <i class="fas fa-check-circle"></i>
+                        Emendas Estaduais
+                    </div>
+                    <div class="fund-chip emendas-federais active" data-fund="Emendas Federais">
+                        <i class="fas fa-check-circle"></i>
+                        Emendas Federais
                     </div>
                 </div>
             </div>
         </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <i class="fas fa-calendar text-blue-600"></i>
+                    Ano
+                </label>
+                <div class="custom-select" id="anoSelect">
+                    <div class="custom-select-trigger">
+                        <span>Todos os Anos</span>
+                    </div>
+                    <div class="custom-select-options">
+                        <div class="custom-select-option selected" data-value="todos">Todos os Anos</div>
+                        <div class="custom-select-option" data-value="2019">2019</div>
+                        <div class="custom-select-option" data-value="2020">2020</div>
+                        <div class="custom-select-option" data-value="2021">2021</div>
+                        <div class="custom-select-option" data-value="2022">2022</div>
+                        <div class="custom-select-option" data-value="2023">2023</div>
+                        <div class="custom-select-option" data-value="2024">2024</div>
+                        <div class="custom-select-option" data-value="2025">2025</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <i class="fas fa-project-diagram text-blue-600"></i>
+                    Eixo
+                </label>
+                <div class="custom-select" id="eixoSelect">
+                    <div class="custom-select-trigger">
+                        <span>Todos os Eixos</span>
+                    </div>
+                    <div class="custom-select-options">
+                        <div class="custom-select-option selected" data-value="todos">Todos os Eixos</div>
+                        <div class="custom-select-option" data-value="EVM">EVM</div>
+                        <div class="custom-select-option" data-value="VPSP-MQVPSP">VPSP-MQVPSP</div>
+                        <div class="custom-select-option" data-value="ECV-FISPDS-RMVI">ECV-FISPDS-RMVI</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <i class="fas fa-tags text-blue-600"></i>
+                    Natureza
+                </label>
+                <div class="custom-select" id="naturezaSelect">
+                    <div class="custom-select-trigger">
+                        <span>Todas as Naturezas</span>
+                    </div>
+                    <div class="custom-select-options">
+                        <div class="custom-select-option selected" data-value="todos">Todas as Naturezas</div>
+                        <div class="custom-select-option" data-value="Custeio">Custeio</div>
+                        <div class="custom-select-option" data-value="Investimento">Investimento</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
         <div class="mb-6">
             <div class="border-b border-gray-200">
