@@ -878,14 +878,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     document.getElementById('btnQuantidade').addEventListener('change', () => {
-        setVisualizacaoAtual('quantidade');
-        atualizarVisualizacao();
-    });
+    setVisualizacaoAtual('quantidade');
+    atualizarVisualizacao();
     
-    document.getElementById('btnObjetos').addEventListener('change', () => {
-        setVisualizacaoAtual('objetos');
-        atualizarVisualizacao();
-    });
+    if (abaAtual !== 'geral') {
+        atualizarAbaFundo(abaAtual);
+    }
+});
+
+document.getElementById('btnObjetos').addEventListener('change', () => {
+    setVisualizacaoAtual('objetos');
+    atualizarVisualizacao();
+    
+    if (abaAtual !== 'geral') {
+        atualizarAbaFundo(abaAtual);
+    }
+});
     
     document.getElementById('btnAplicarFiltro').addEventListener('click', () => {
         const filtros = getFiltrosAtuais();
