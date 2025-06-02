@@ -1,4 +1,19 @@
 import { db, auth, verificarAutenticacao, fazerLogin, fazerLogout, carregarDados, atualizarDado, criarRegistro, excluirRegistro, migrarDadosIniciais } from './firebase.js';
+import { dadosResumo, visualizacaoAtual, filtrosAtuais, formatarMoeda, formatarNumero } from './shared.js';
+import { atualizarAbaFundo } from './fundos.js';
+
+export function setDadosResumo(dados) {
+    dadosResumo.length = 0;
+    dadosResumo.push(...dados);
+}
+
+export function setVisualizacaoAtual(valor) {
+    visualizacaoAtual = valor;
+}
+
+export function setFiltrosAtuais(filtros) {
+    Object.assign(filtrosAtuais, filtros);
+}
 
 let dadosResumo = [];
 let visualizacaoAtual = 'quantidade';
@@ -10,6 +25,7 @@ let filtrosAtuais = {
 };
 let charts = {};
 let abaAtual = 'geral';
+
 
 function formatarMoeda(valor) {
     return new Intl.NumberFormat('pt-BR', {
@@ -962,8 +978,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-window.dadosResumo = dadosResumo;
-window.visualizacaoAtual = visualizacaoAtual;
-window.filtrosAtuais = filtrosAtuais;
-window.formatarMoeda = formatarMoeda;
-window.formatarNumero = formatarNumero;
+export { dadosResumo, visualizacaoAtual, filtrosAtuais, formatarMoeda, formatarNumero };

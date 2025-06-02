@@ -1,3 +1,5 @@
+export { atualizarAbaFundo };
+import { dadosResumo, visualizacaoAtual, filtrosAtuais, formatarMoeda, formatarNumero } from './app.js';
 function criarVisualizacaoFundo(fundo, containerId) {
     const container = document.getElementById(containerId);
     const fundoNormalizado = fundo.replace(/\s+/g, '-').toLowerCase();
@@ -376,5 +378,3 @@ function atualizarGraficosFundo(tab, dadosFundo) {
         options: opcoesObjetos
     });
 }
-
-window.atualizarAbaFundo = atualizarAbaFundo;
