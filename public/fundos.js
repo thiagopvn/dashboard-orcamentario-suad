@@ -1,5 +1,11 @@
-export { atualizarAbaFundo };
-import { dadosResumo, visualizacaoAtual, filtrosAtuais, formatarMoeda, formatarNumero } from './app.js';
+import { 
+    getDadosResumo, 
+    getVisualizacaoAtual, 
+    getFiltrosAtuais, 
+    formatarMoeda, 
+    formatarNumero 
+} from './shared.js';
+
 function criarVisualizacaoFundo(fundo, containerId) {
     const container = document.getElementById(containerId);
     const fundoNormalizado = fundo.replace(/\s+/g, '-').toLowerCase();
@@ -110,11 +116,15 @@ function atualizarAbaFundo(tab) {
         criarVisualizacaoFundo(fundo, `tab-content-${tab}`);
     }
     
-    const dadosFundo = window.dadosResumo.filter(d => {
+    const dadosResumo = getDadosResumo();
+    const filtrosAtuais = getFiltrosAtuais();
+    const visualizacaoAtual = getVisualizacaoAtual();
+    
+    const dadosFundo = dadosResumo.filter(d => {
         return d.fundo === fundo &&
-               (window.filtrosAtuais.ano === 'todos' || d.ano.toString() === window.filtrosAtuais.ano) &&
-               (window.filtrosAtuais.eixo === 'todos' || d.eixo === window.filtrosAtuais.eixo) &&
-               (window.filtrosAtuais.natureza === 'todos' || d.natureza === window.filtrosAtuais.natureza);
+               (filtrosAtuais.ano === 'todos' || d.ano.toString() === filtrosAtuais.ano) &&
+               (filtrosAtuais.eixo === 'todos' || d.eixo === filtrosAtuais.eixo) &&
+               (filtrosAtuais.natureza === 'todos' || d.natureza === filtrosAtuais.natureza);
     });
     
     const totais = dadosFundo.reduce((acc, d) => {
@@ -132,22 +142,22 @@ function atualizarAbaFundo(tab) {
         }
     });
     
-    document.getElementById(`${tab}-empenhado`).textContent = window.formatarMoeda(totais.empenhado);
-    document.getElementById(`${tab}-liquidado`).textContent = window.formatarMoeda(totais.liquidado);
+    document.getElementById(`${tab}-empenhado`).textContent = formatarMoeda(totais.empenhado);
+    document.getElementById(`${tab}-liquidado`).textContent = formatarMoeda(totais.liquidado);
     
-    if (window.visualizacaoAtual === 'quantidade') {
-        document.getElementById(`${tab}-objetos`).textContent = window.formatarNumero(totais.objetos);
+    if (visualizacaoAtual === 'quantidade') {
+        document.getElementById(`${tab}-objetos`).textContent = formatarNumero(totais.objetos);
     } else {
-        document.getElementById(`${tab}-objetos`).textContent = window.formatarNumero(todosItens.size);
+        document.getElementById(`${tab}-objetos`).textContent = formatarNumero(todosItens.size);
     }
     
-    document.getElementById(`${tab}-prestadas`).textContent = window.formatarNumero(totais.prestadas);
+    document.getElementById(`${tab}-prestadas`).textContent = formatarNumero(totais.prestadas);
     
     const tbody = document.getElementById(`${tab}-tabela`);
     tbody.innerHTML = '';
     
     const colObjetos = document.getElementById(`${tab}-colObjetos`);
-    colObjetos.textContent = window.visualizacaoAtual === 'quantidade' ? 'Objetos Adquiridos' : 'Lista de Objetos';
+    colObjetos.textContent = visualizacaoAtual === 'quantidade' ? 'Objetos Adquiridos' : 'Lista de Objetos';
     
     dadosFundo.sort((a, b) => {
         if (a.ano !== b.ano) return a.ano - b.ano;
@@ -160,8 +170,8 @@ function atualizarAbaFundo(tab) {
         tr.className = 'hover:bg-gray-50';
         
         let objetosCell;
-        if (window.visualizacaoAtual === 'quantidade') {
-            objetosCell = window.formatarNumero(d.objetos);
+        if (visualizacaoAtual === 'quantidade') {
+            objetosCell = formatarNumero(d.objetos);
         } else {
             if (d.itens && d.itens.length > 0) {
                 objetosCell = `<div class="flex flex-wrap gap-1">
@@ -185,10 +195,10 @@ function atualizarAbaFundo(tab) {
             <td class="px-4 py-2">${d.ano}</td>
             <td class="px-4 py-2">${d.eixo}</td>
             <td class="px-4 py-2">${d.natureza}</td>
-            <td class="px-4 py-2">${window.formatarMoeda(d.empenhado)}</td>
-            <td class="px-4 py-2">${window.formatarMoeda(d.liquidado)}</td>
+            <td class="px-4 py-2">${formatarMoeda(d.empenhado)}</td>
+            <td class="px-4 py-2">${formatarMoeda(d.liquidado)}</td>
             <td class="px-4 py-2">${objetosCell}</td>
-            <td class="px-4 py-2">${window.formatarNumero(d.prestadas)}</td>
+            <td class="px-4 py-2">${formatarNumero(d.prestadas)}</td>
             ${infoExtra}
         `;
         
@@ -200,18 +210,18 @@ function atualizarAbaFundo(tab) {
         trTotal.className = 'font-bold bg-gray-100';
         
         let objetosTotaisCell;
-        if (window.visualizacaoAtual === 'quantidade') {
-            objetosTotaisCell = window.formatarNumero(totais.objetos);
+        if (visualizacaoAtual === 'quantidade') {
+            objetosTotaisCell = formatarNumero(totais.objetos);
         } else {
             objetosTotaisCell = `<strong>${todosItens.size} tipos</strong>`;
         }
         
         trTotal.innerHTML = `
             <td colspan="3" class="px-4 py-2">TOTAL</td>
-            <td class="px-4 py-2">${window.formatarMoeda(totais.empenhado)}</td>
-            <td class="px-4 py-2">${window.formatarMoeda(totais.liquidado)}</td>
+            <td class="px-4 py-2">${formatarMoeda(totais.empenhado)}</td>
+            <td class="px-4 py-2">${formatarMoeda(totais.liquidado)}</td>
             <td class="px-4 py-2">${objetosTotaisCell}</td>
-            <td class="px-4 py-2">${window.formatarNumero(totais.prestadas)}</td>
+            <td class="px-4 py-2">${formatarNumero(totais.prestadas)}</td>
             ${fundo === 'Emendas Federais' ? '<td></td>' : ''}
         `;
         tbody.appendChild(trTotal);
@@ -268,9 +278,10 @@ function atualizarGraficosFundo(tab, dadosFundo) {
         }]
     };
     
+    const visualizacaoAtual = getVisualizacaoAtual();
     let objetosData, prestadasData;
     
-    if (window.visualizacaoAtual === 'quantidade') {
+    if (visualizacaoAtual === 'quantidade') {
         objetosData = anos.map(ano => dadosFundo.filter(d => d.ano === ano).reduce((sum, d) => sum + d.objetos, 0));
         prestadasData = anos.map(ano => dadosFundo.filter(d => d.ano === ano).reduce((sum, d) => sum + d.prestadas, 0));
     } else {
@@ -316,7 +327,7 @@ function atualizarGraficosFundo(tab, dadosFundo) {
                             label += ': ';
                         }
                         if (context.parsed.y !== null) {
-                            label += window.formatarMoeda(context.parsed.y);
+                            label += formatarMoeda(context.parsed.y);
                         }
                         return label;
                     }
@@ -337,7 +348,7 @@ function atualizarGraficosFundo(tab, dadosFundo) {
                             label += ': ';
                         }
                         if (context.parsed.y !== null) {
-                            label += window.formatarNumero(context.parsed.y);
+                            label += formatarNumero(context.parsed.y);
                         }
                         return label;
                     }
@@ -378,3 +389,5 @@ function atualizarGraficosFundo(tab, dadosFundo) {
         options: opcoesObjetos
     });
 }
+
+export { atualizarAbaFundo };

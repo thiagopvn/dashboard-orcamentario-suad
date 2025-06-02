@@ -1,43 +1,19 @@
 import { db, auth, verificarAutenticacao, fazerLogin, fazerLogout, carregarDados, atualizarDado, criarRegistro, excluirRegistro, migrarDadosIniciais } from './firebase.js';
-import { dadosResumo, visualizacaoAtual, filtrosAtuais, formatarMoeda, formatarNumero } from './shared.js';
+import { 
+    getDadosResumo, 
+    setDadosResumo, 
+    getVisualizacaoAtual, 
+    setVisualizacaoAtual, 
+    getFiltrosAtuais, 
+    setFiltrosAtuais,
+    updateFiltrosAtuais,
+    formatarMoeda, 
+    formatarNumero 
+} from './shared.js';
 import { atualizarAbaFundo } from './fundos.js';
 
-export function setDadosResumo(dados) {
-    dadosResumo.length = 0;
-    dadosResumo.push(...dados);
-}
-
-export function setVisualizacaoAtual(valor) {
-    visualizacaoAtual = valor;
-}
-
-export function setFiltrosAtuais(filtros) {
-    Object.assign(filtrosAtuais, filtros);
-}
-
-let dadosResumo = [];
-let visualizacaoAtual = 'quantidade';
-let filtrosAtuais = {
-    ano: 'todos',
-    eixo: 'todos',
-    natureza: 'todos',
-    fundos: ['FUSP', 'FECAM', 'Emendas Estaduais', 'Emendas Federais']
-};
 let charts = {};
 let abaAtual = 'geral';
-
-
-function formatarMoeda(valor) {
-    return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-        minimumFractionDigits: 2
-    }).format(valor);
-}
-
-function formatarNumero(valor) {
-    return new Intl.NumberFormat('pt-BR').format(valor);
-}
 
 function atualizarFundosSelecionados() {
     const fundosSelecionados = [];
@@ -45,12 +21,16 @@ function atualizarFundosSelecionados() {
     if (document.getElementById('filtroFECAM').checked) fundosSelecionados.push('FECAM');
     if (document.getElementById('filtroEmendasEstaduais').checked) fundosSelecionados.push('Emendas Estaduais');
     if (document.getElementById('filtroEmendasFederais').checked) fundosSelecionados.push('Emendas Federais');
-    filtrosAtuais.fundos = fundosSelecionados;
+    updateFiltrosAtuais('fundos', fundosSelecionados);
 }
 
 function atualizarTabela() {
     const tbody = document.getElementById('tabelaDados');
     tbody.innerHTML = '';
+    
+    const dadosResumo = getDadosResumo();
+    const filtrosAtuais = getFiltrosAtuais();
+    const visualizacaoAtual = getVisualizacaoAtual();
     
     let dadosFiltrados = dadosResumo.filter(d => {
         return (filtrosAtuais.ano === 'todos' || d.ano.toString() === filtrosAtuais.ano) &&
@@ -197,6 +177,10 @@ function atualizarTabela() {
 }
 
 function atualizarResumos() {
+    const dadosResumo = getDadosResumo();
+    const filtrosAtuais = getFiltrosAtuais();
+    const visualizacaoAtual = getVisualizacaoAtual();
+    
     let dadosFiltrados = dadosResumo.filter(d => {
         return (filtrosAtuais.ano === 'todos' || d.ano.toString() === filtrosAtuais.ano) &&
                (filtrosAtuais.eixo === 'todos' || d.eixo === filtrosAtuais.eixo) &&
@@ -232,6 +216,10 @@ function atualizarResumos() {
 }
 
 function prepararDadosGraficos() {
+    const dadosResumo = getDadosResumo();
+    const filtrosAtuais = getFiltrosAtuais();
+    const visualizacaoAtual = getVisualizacaoAtual();
+    
     let dadosFiltrados = dadosResumo.filter(d => {
         return (filtrosAtuais.ano === 'todos' || d.ano.toString() === filtrosAtuais.ano) &&
                (filtrosAtuais.eixo === 'todos' || d.eixo === filtrosAtuais.eixo) &&
@@ -419,7 +407,7 @@ async function carregarDadosDoFirebase() {
     const resultado = await carregarDados();
     
     if (resultado.sucesso) {
-        dadosResumo = resultado.dados;
+        setDadosResumo(resultado.dados);
         atualizarVisualizacao();
     } else {
         alert(resultado.mensagem);
@@ -431,6 +419,7 @@ function mostrarFormularioEdicao(cell) {
     const docId = row.getAttribute('data-id');
     const field = cell.getAttribute('data-field');
     const currentValue = parseFloat(cell.getAttribute('data-value'));
+    const dadosResumo = getDadosResumo();
     const registro = dadosResumo.find(d => {
         const id = `${d.ano}_${d.eixo.replace(/[^a-zA-Z0-9]/g, '')}_${d.natureza}_${d.fundo.replace(/[^a-zA-Z0-9]/g, '')}`;
         return id === docId;
@@ -889,24 +878,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     document.getElementById('btnQuantidade').addEventListener('change', () => {
-        visualizacaoAtual = 'quantidade';
+        setVisualizacaoAtual('quantidade');
         atualizarVisualizacao();
     });
     
     document.getElementById('btnObjetos').addEventListener('change', () => {
-        visualizacaoAtual = 'objetos';
+        setVisualizacaoAtual('objetos');
         atualizarVisualizacao();
     });
     
     document.getElementById('btnAplicarFiltro').addEventListener('click', () => {
-        filtrosAtuais.ano = document.getElementById('filtroAno').value;
-        filtrosAtuais.eixo = document.getElementById('filtroEixo').value;
-        filtrosAtuais.natureza = document.getElementById('filtroNatureza').value;
+        const filtros = getFiltrosAtuais();
+        filtros.ano = document.getElementById('filtroAno').value;
+        filtros.eixo = document.getElementById('filtroEixo').value;
+        filtros.natureza = document.getElementById('filtroNatureza').value;
+        setFiltrosAtuais(filtros);
         atualizarFundosSelecionados();
         atualizarVisualizacao();
         
         if (abaAtual !== 'geral') {
-            window.atualizarAbaFundo(abaAtual);
+            atualizarAbaFundo(abaAtual);
         }
     });
     
@@ -916,7 +907,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             atualizarVisualizacao();
             
             if (abaAtual !== 'geral') {
-                window.atualizarAbaFundo(abaAtual);
+                atualizarAbaFundo(abaAtual);
             }
         });
     });
@@ -972,10 +963,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             abaAtual = tab;
             
             if (tab !== 'geral') {
-                window.atualizarAbaFundo(tab);
+                atualizarAbaFundo(tab);
             }
         });
     });
 });
-
-export { dadosResumo, visualizacaoAtual, filtrosAtuais, formatarMoeda, formatarNumero };
