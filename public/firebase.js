@@ -165,21 +165,46 @@ export async function migrarDadosIniciais(dadosResumo) {
         }
         
         for (const dado of dadosResumo) {
-            const docId = `${dado.ano}_${dado.eixo.replace(/[^a-zA-Z0-9]/g, '')}_${dado.natureza}_${dado.fundo.replace(/[^a-zA-Z0-9]/g, '')}`;
+            if (dado.fundo === 'FUSP') {
+                continue;
+            }
+            
+            const eixo = dado.eixo || 'SEM_EIXO';
+            const docId = `${dado.ano}_${eixo.replace(/[^a-zA-Z0-9]/g, '')}_${dado.natureza}_${dado.fundo.replace(/[^a-zA-Z0-9]/g, '')}`;
             
             const docRef = doc(db, 'despesas', docId);
             
-            await setDoc(docRef, {
+            const dadosParaSalvar = {
                 ano: dado.ano,
                 fundo: dado.fundo,
-                eixo: dado.eixo,
+                eixo: eixo,
                 natureza: dado.natureza,
-                empenhado: dado.empenhado,
-                liquidado: dado.liquidado,
-                objetos: dado.objetos,
-                prestadas: dado.prestadas,
+                empenhado: dado.empenhado || 0,
+                liquidado: dado.liquidado || 0,
+                objetos: dado.objetos || 0,
+                prestadas: dado.prestadas || 0,
                 itens: dado.itens || []
-            }, { merge: true });
+            };
+            
+            if (dado.numeroEmenda) dadosParaSalvar.numeroEmenda = dado.numeroEmenda;
+            if (dado.parlamentar) dadosParaSalvar.parlamentar = dado.parlamentar;
+            if (dado.tipo) dadosParaSalvar.tipo = dado.tipo;
+            if (dado.autor) dadosParaSalvar.autor = dado.autor;
+            if (dado.valor) dadosParaSalvar.valor = dado.valor;
+            if (dado.situacao) dadosParaSalvar.situacao = dado.situacao;
+            if (dado.valorEmenda) dadosParaSalvar.valorEmenda = dado.valorEmenda;
+            if (dado.valorUnitarioEstimado) dadosParaSalvar.valorUnitarioEstimado = dado.valorUnitarioEstimado;
+            if (dado.valorUnitarioHomologado) dadosParaSalvar.valorUnitarioHomologado = dado.valorUnitarioHomologado;
+            if (dado.ma) dadosParaSalvar.ma = dado.ma;
+            if (dado.previsao) dadosParaSalvar.previsao = dado.previsao;
+            if (dado.homologado) dadosParaSalvar.homologado = dado.homologado;
+            if (dado.saldo) dadosParaSalvar.saldo = dado.saldo;
+            if (dado.valorVinculado) dadosParaSalvar.valorVinculado = dado.valorVinculado;
+            if (dado.upu) dadosParaSalvar.upu = dado.upu;
+            if (dado.uo) dadosParaSalvar.uo = dado.uo;
+            if (dado.nomeEmenda) dadosParaSalvar.nomeEmenda = dado.nomeEmenda;
+            
+            await setDoc(docRef, dadosParaSalvar, { merge: true });
         }
         
         return { sucesso: true };
