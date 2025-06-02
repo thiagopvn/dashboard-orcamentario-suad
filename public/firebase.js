@@ -58,12 +58,49 @@ export async function fazerLogout() {
 
 export async function carregarDados() {
     try {
-        const colecao = collection(db, 'despesas');
-        const snapshot = await getDocs(colecao);
         const dados = [];
         
-        snapshot.forEach(doc => {
+        const colecaoDespesas = collection(db, 'despesas');
+        const snapshotDespesas = await getDocs(colecaoDespesas);
+        
+        snapshotDespesas.forEach(doc => {
             dados.push({ id: doc.id, ...doc.data() });
+        });
+        
+        const colecaoFUSP = collection(db, 'dadosOrcamentarios');
+        const snapshotFUSP = await getDocs(colecaoFUSP);
+        
+        snapshotFUSP.forEach(doc => {
+            const docData = doc.data();
+            const docId = doc.id;
+            const partes = docId.split('_');
+            
+            if (partes.length >= 3) {
+                const ano = parseInt(partes[0]);
+                const eixoRaw = partes[1];
+                const natureza = partes[2];
+                
+                let eixo = eixoRaw;
+                if (eixoRaw === 'ECVFISPDSRMVI') {
+                    eixo = 'ECV-FISPDS-RMVI';
+                } else if (eixoRaw === 'VPSPMQVPSP') {
+                    eixo = 'VPSP-MQVPSP';
+                }
+                
+                dados.push({
+                    id: docId,
+                    ano: ano,
+                    fundo: 'FUSP',
+                    eixo: eixo,
+                    natureza: natureza,
+                    empenhado: docData.empenhado || 0,
+                    liquidado: docData.liquidado || 0,
+                    objetos: docData.objetos || 0,
+                    prestadas: docData.prestadas || 0,
+                    itens: docData.itens || [],
+                    ...docData
+                });
+            }
         });
         
         return { sucesso: true, dados };
