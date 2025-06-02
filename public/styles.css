@@ -1,438 +1,56 @@
-:root {
-    --primary-color: #1f4e78;
-    --secondary-color: #ebf1fa;
-    --accent-color: #346a9e;
-    --text-light: #ffffff;
-    --text-dark: #333333;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa;
-    color: var(--text-dark);
-    padding-top: 60px;
-}
-
-.navbar {
-    background-color: var(--primary-color);
-}
-
-.card {
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    border: none;
-}
-
-.card-header {
-    background-color: var(--primary-color);
-    color: var(--text-light);
-    border-radius: 10px 10px 0 0 !important;
-    padding: 15px 20px;
-    font-weight: 600;
-}
-
-.table {
-    margin-bottom: 0;
-}
-
-.table th {
-    background-color: var(--accent-color);
-    color: var(--text-light);
-    font-weight: 500;
-}
-
-.table-striped tbody tr:nth-of-type(odd) {
-    background-color: var(--secondary-color);
-}
-
-.btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.btn-primary:hover {
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
-}
-
 .chart-container {
     position: relative;
     height: 400px;
     width: 100%;
 }
 
-.filtro-container {
-    background-color: white;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.badge {
-    font-size: 100%;
-    font-weight: 500;
-}
-
-.badge-primary {
-    background-color: var(--primary-color);
-}
-
-.badge-success {
-    background-color: #28a745;
-}
-
-.badge-info {
-    background-color: var(--accent-color);
-}
-
-.summary-card {
-    text-align: center;
-    padding: 20px;
-    color: var(--text-light);
-    border-radius: 10px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.summary-value {
-    font-size: 24px;
-    font-weight: bold;
-    margin: 10px 0;
-}
-
-.summary-title {
-    font-size: 14px;
-    opacity: 0.9;
-}
-
-.bg-primary-dark {
-    background-color: var(--primary-color);
-}
-
-.bg-accent {
-    background-color: var(--accent-color);
-}
-
-.toggle-view-btn {
-    margin-right: 10px;
-}
-
-.data-source {
-    font-size: 12px;
-    text-align: right;
-    margin-top: 5px;
-    color: #6c757d;
-}
-
-.toggle-button-group {
-    margin-bottom: 15px;
-}
-
-.toggle-button-group label {
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-}
-
-.toggle-button-group input:checked + label {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.item-list {
-    list-style-type: none;
-    padding-left: 0;
-    font-size: 14px;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.item-list li {
-    padding: 3px 0;
-    border-bottom: 1px dashed #eee;
-}
-
-.item-badge {
-    display: inline-block;
-    padding: 2px 8px;
-    margin: 2px;
-    background-color: #f0f0f0;
-    border-radius: 10px;
-    font-size: 12px;
-}
-
-/* Estilos para a visualização de objetos */
-.object-cell {
-    max-width: 300px;
-    overflow: visible;
-}
-
-.object-list {
-    padding: 0;
-    margin: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column; /* Alterado de row (padrão) para column */
-    gap: 5px;
-    width: 100%;
-}
-
-.object-tag {
-    background-color: var(--accent-color);
-    color: white;
-    padding: 4px 10px; /* Aumentado ligeiramente para melhor visualização */
-    border-radius: 8px;
-    font-size: 12px;
-    white-space: normal;
-    word-break: break-word;
-    display: block; /* Alterado de inline-block para block */
-    margin-bottom: 5px;
-    width: 100%; /* Add spacing between wrapped lines */
-}
-
-/* Estilos para edição de células */
 .editable-cell {
-    cursor: pointer;
     position: relative;
-    transition: background-color 0.2s;
-}
-
-.editable-cell:hover {
-    background-color: rgba(52, 106, 158, 0.1);
+    transition: all 0.2s;
 }
 
 .editable-cell:hover::after {
     content: "✏️";
     position: absolute;
-    right: 5px;
+    right: 0.5rem;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 14px;
+    font-size: 0.875rem;
     opacity: 0.7;
 }
 
-/* Estilo para o formulário de edição */
-.edit-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+@media (max-width: 768px) {
+    .editable-cell:hover::after {
+        content: "";
+    }
 }
 
-.edit-form {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-    width: 400px;
-    max-width: 90vw;
-    max-height: 90vh;
-    overflow-y: auto;
-}
-
-.edit-form h4 {
-    color: var(--primary-color);
-    margin-bottom: 20px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-}
-
-.edit-form h5 {
-    color: var(--accent-color);
-    font-size: 16px;
-    margin-top: 15px;
-    margin-bottom: 10px;
-}
-
-/* Editor de itens */
-.items-editor {
-    margin-top: 15px;
-    border-top: 1px solid #eee;
-    padding-top: 15px;
-}
-
-.item-input-group {
-    display: flex;
-    margin-bottom: 10px; /* Aumentar espaçamento entre itens */
-    align-items: flex-start;
-    width: 100%;
-}
-
-.item-input-group input {
-    flex-grow: 1;
-    margin-right: 5px;
-    border-radius: 4px;
-    min-width: 200px; /* Ensures a minimum width for the input */
-}
-
-.item-input-group .btn-danger {
-    padding: 0.25rem 0.5rem;
-}
-
-/* Controle de visibilidade para elementos de edição */
 .btn-edit-control {
     display: none;
 }
 
-/* Botões de ação na tabela */
-.btn-excluir {
-    padding: 0.25rem 0.5rem;
-    line-height: 1;
-}
-
-/* Modal de login */
-.modal-content {
-    border-radius: 10px;
-    border: none;
-}
-
-.modal-header {
-    background-color: var(--primary-color);
-    color: var(--text-light);
-    border-radius: 10px 10px 0 0 !important;
-    padding: 15px 20px;
-}
-
-.modal-footer {
-    border-top: none;
-    padding: 15px 20px;
-}
-
-#loginError {
-    margin-top: 10px;
-    font-size: 14px;
-}
-
-/* Botões relacionados ao Firebase */
-#btnNovoRegistro {
-    background-color: #28a745;
-    border-color: #28a745;
-}
-
-#btnNovoRegistro:hover {
-    background-color: #218838;
-    border-color: #1e7e34;
-}
-
-#btnMigrarDados {
-    background-color: #ffc107;
-    border-color: #ffc107;
-    color: #212529;
-}
-
-#btnMigrarDados:hover {
-    background-color: #e0a800;
-    border-color: #d39e00;
-}
-
-/* Responsividade para tabelas */
-@media (max-width: 768px) {
-    .table-responsive {
-        font-size: 14px;
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
     }
-    
-    .editable-cell:hover::after {
-        content: "";
-    }
-    
-    .object-cell {
-       max-width: 300px;
-    overflow: visible;
-    padding: 5px 0;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-/* Estilo para mensagens de alerta e erro */
-.alert {
-    margin-bottom: 15px;
-    border-radius: 8px;
+.tab-content {
+    animation: fadeIn 0.3s ease-in-out;
 }
 
-.alert-danger {
-    background-color: rgba(220, 53, 69, 0.1);
-    border-color: rgba(220, 53, 69, 0.2);
-    color: #dc3545;
+.form-checkbox:checked,
+.form-radio:checked {
+    background-color: #2563eb;
+    border-color: #2563eb;
 }
 
-/* Melhorias para a visualização em dispositivos móveis */
-@media (max-width: 576px) {
-    .edit-form {
-        width: 500px; /* Increased from 400px */
-        max-width: 95vw;
-    }
-    
-    .summary-card {
-        padding: 15px 10px;
-    }
-    
-    .summary-value {
-        font-size: 20px;
-    }
-}
-
-/* Estilos para os estados de carregamento e erros */
-.loading-spinner {
-    display: inline-block;
-    width: 1.5rem;
-    height: 1.5rem;
-    border: 0.2em solid rgba(0, 0, 0, 0.1);
-    border-top: 0.2em solid var(--primary-color);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Estilos para melhorar a acessibilidade dos formulários */
-input:focus, select:focus, button:focus {
-    box-shadow: 0 0 0 0.25rem rgba(31, 78, 120, 0.25) !important;
-}
-
-/* Estilo para o botão de login/logout */
-#logoutBtn {
-    border-color: white;
-    transition: all 0.3s ease;
-}
-
-#logoutBtn:hover {
-    background-color: white;
-    color: var(--primary-color);
-}
-
-/* Ajustes nos formulários de edição */
-.edit-form input[type="number"] {
-    text-align: right;
-}
-
-.edit-form h4 {
-    margin-bottom: 20px;
-    color: var(--primary-color);
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-}
-
-/* Reforçar visibilidade de células editáveis */
-.editable-cell:hover::after {
-    content: "✏️";
-    position: absolute;
-    right: 5px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 14px;
-    opacity: 0.8;
+.form-checkbox,
+.form-radio {
+    color: #2563eb;
 }
